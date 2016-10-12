@@ -5,11 +5,12 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.amqp.AMQPComponent;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.artemis.ArtemisConfigurationCustomizer;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+
+import static org.apache.camel.component.amqp.AMQPComponent.amqpComponent;
 
 @SpringBootApplication
 public class Broker {
@@ -33,7 +34,7 @@ public class Broker {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                getContext().addComponent("amqp", AMQPComponent.amqpComponent("amqp://localhost:5672"));
+                getContext().addComponent("amqp", amqpComponent("amqp://localhost:5672"));
                 from("amqp:foo").log("hello!");
             }
         };
