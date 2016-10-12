@@ -2,10 +2,10 @@ package artemis;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
-import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.amqp.AMQPComponent;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.artemis.ArtemisConfigurationCustomizer;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -28,21 +28,22 @@ public class Broker {
         };
     }
 
-    public static void main(String[] args) throws Exception {
-        System.setProperty("spring.artemis.mode", "native");
-        new SpringApplicationBuilder(Broker.class).run(args);
-
-        CamelContext camelContext = new DefaultCamelContext();
-        camelContext.addComponent("amqp", AMQPComponent.amqpComponent("amqp://localhost:5672"));
-        camelContext.addRoutes(new RouteBuilder() {
+    @Bean
+    RoutesBuilder amqpRoute() {
+        return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
+                getContext().addComponent("amqp", AMQPComponent.amqpComponent("amqp://localhost:5672"));
                 from("amqp:foo").log("hello!");
             }
-        });
-        camelContext.start();
+        };
+    }
 
-        Object response = camelContext.createProducerTemplate().requestBody("amqp:foo", "xxx");
+    public static void main(String[] args) throws Exception {
+        System.setProperty("spring.artemis.mode", "native");
+        ProducerTemplate producer = new SpringApplicationBuilder(Broker.class).run(args).getBean(ProducerTemplate.class);
+
+        Object response = producer.requestBody("amqp:foo", "xxx");
         System.out.println(response);
     }
 
