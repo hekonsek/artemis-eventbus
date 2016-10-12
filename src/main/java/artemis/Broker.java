@@ -21,6 +21,7 @@ public class Broker {
             public void customize(Configuration configuration) {
                 try {
                     configuration.addAcceptorConfiguration("amqp-acceptor", "tcp://localhost:5672?protocols=AMQP");
+//                    configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateJmsQueues(true).setAutoCreateJmsTopics(true));
                     configuration.addQueueConfiguration(new CoreQueueConfiguration().setAddress("foo").setName("foo"));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
